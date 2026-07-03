@@ -77,7 +77,7 @@ public class User extends BaseTimeEntity{
     /**
      * 기록용 시각/IP
      */
-    private LocalDateTime withdrawAt;
+    private LocalDateTime withdrawnAt;
     private LocalDateTime passwordChangedAt;
     @Column(length = 45)
     private String createdIp;
@@ -181,7 +181,7 @@ public class User extends BaseTimeEntity{
      */
     public void withdrawAccount(){
         this.withdraw = true;
-        this.withdrawAt = LocalDateTime.now();
+        this.withdrawnAt = LocalDateTime.now();
         this.enabled = false;
     }
 
