@@ -1,5 +1,6 @@
 package io.security.redall.service;
 
+import io.security.redall.domain.Role;
 import io.security.redall.domain.User;
 import io.security.redall.dto.SignupRequest;
 import io.security.redall.repository.RoleRepository;
@@ -44,8 +45,16 @@ public class AuthService {
                 .name(request.getName())
                 .build();
 
-        // 5. 기본 권한 설정
+        // 5. 기본 권한(ROLE_USER) 설정
+        Role userRole = roleRepository.findByAuthority("ROLE_USER")
+                .orElseThrow(() -> new IllegalStateException("기본 권한이 없습니다. data.sql를 확인하세요."));
 
+        user.addRole(userRole);
+
+        // 6. 저장
+        userRepository.save(user);
+
+        return user.getId();
     }
 
 }

@@ -2,6 +2,7 @@ package io.security.redall.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -18,6 +19,7 @@ public class Role {
     @Column(nullable = false, unique = true, length = 50)
     private String authority;
 
+    @Builder
     public Role(String authority) {
         this.authority = authority;
     }
