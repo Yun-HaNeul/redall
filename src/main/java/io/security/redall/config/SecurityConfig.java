@@ -1,33 +1,59 @@
 package io.security.redall.config;
 
+import io.security.redall.security.jwt.JwtAuthFilter;
+import io.security.redall.security.jwt.JwtTokenProvider;
+import io.security.redall.security.jwt.LoginFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
-    /**
-     * 비밀번호 암호화
-     * 회원가입 시 평문 비밀번호를 해시해서 저장한 후,
-     * 로그인 시 입력값과 저장된 해시를 대조
-     */
+
+    private final JwtTokenProvider jwtTokenProvider;
+
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http,
+                                           AuthenticationManager authenticationManager)
+            throws Exception {
+        // 매니저를 파라미터로 주입받아 사용 (직접 호출 금지)
+        LoginFilter loginFilter = new LoginFilter(authenticationManager, jwtTokenProvider);
+
         http
-                // 개발 단계: 일단 모든 요청 허용
-                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-                // H2 콘솔은 CSRF 예외
                 .csrf(csrf -> csrf.disable())
-                // H2 콘솔이 iframe로 뜨므로 frameOptions 허용
-                .headers(headers -> headers.frameOptions(frame -> frame.disable()));
+                .formLogin(form -> form.disable())
+                .httpBasic(basic -> basic.disable())
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .headers(headers -> headers.frameOptions(frame -> frame.disable()))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/signup", "/api/auth/login",
+                                "/api/auth/refresh", "/h2-console/**").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtAuthFilter(jwtTokenProvider), LoginFilter.class);
+
         return http.build();
     }
 }
