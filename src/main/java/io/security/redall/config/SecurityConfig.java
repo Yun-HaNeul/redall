@@ -3,6 +3,7 @@ package io.security.redall.config;
 import io.security.redall.security.jwt.JwtAuthFilter;
 import io.security.redall.security.jwt.JwtTokenProvider;
 import io.security.redall.security.jwt.LoginFilter;
+import io.security.redall.service.LoginAttemptService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import tools.jackson.databind.ObjectMapper;
 
 @Configuration
 @RequiredArgsConstructor
@@ -34,10 +36,10 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http,
-                                           AuthenticationManager authenticationManager)
+                                           AuthenticationManager authenticationManager, ObjectMapper objectMapper, LoginAttemptService loginAttemptService)
             throws Exception {
         // 매니저를 파라미터로 주입받아 사용 (직접 호출 금지)
-        LoginFilter loginFilter = new LoginFilter(authenticationManager, jwtTokenProvider);
+        LoginFilter loginFilter = new LoginFilter(authenticationManager, jwtTokenProvider, loginAttemptService, objectMapper);
 
         http
                 .csrf(csrf -> csrf.disable())
@@ -48,7 +50,8 @@ public class SecurityConfig {
                 .headers(headers -> headers.frameOptions(frame -> frame.disable()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/signup", "/api/auth/login",
-                                "/api/auth/refresh", "/h2-console/**").permitAll()
+                                "/api/auth/refresh", "/api/auth/password/reset",
+                                "/h2-console/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class)
