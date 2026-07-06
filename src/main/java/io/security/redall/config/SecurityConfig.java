@@ -51,6 +51,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/signup", "/api/auth/login",
                                 "/api/auth/refresh", "/api/auth/password/reset",
+                                "/api/auth/oauth/login", "/api/auth/verify-email",
                                 "/h2-console/**").permitAll()
                         .anyRequest().authenticated()
                 )
