@@ -17,6 +17,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailVerificationService emailVerificationService;
 
     /**
      * 일반 회원가입
@@ -53,6 +54,9 @@ public class AuthService {
 
         // 6. 저장
         userRepository.save(user);
+
+        // 7. 이메일 인증
+        emailVerificationService.sendVerificationEmail(user);
 
         return user.getId();
     }

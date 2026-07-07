@@ -53,4 +53,8 @@ public class ConfirmEmail extends BaseTimeEntity{
     public void markVerified(){
         this.verified = true;
     }
+
+    public boolean isVerified(){
+        return verified;
+    }
 }

@@ -32,7 +32,7 @@ public class GoogleOAuthClient implements OAuthClient{
 
         String providerId = (String) response.get("sub");
         String email = (String) response.get("email");
-        String name = (String) response.get("name");
+        String name = (String) response.get("name") != null ? (String) response.get("name") : "구글사용자";
 
         return new OAuthUserInfo(OAuthProvider.GOOGLE, providerId, email, name);
     }

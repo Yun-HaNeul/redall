@@ -15,7 +15,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import tools.jackson.databind.ObjectMapper;
+
+import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
@@ -35,6 +40,25 @@ public class SecurityConfig {
     }
 
     @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        //  프론트 주소 허용
+        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        //  허용할 HTTP 메서드
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        //  허용할 헤더
+        configuration.setAllowedHeaders(List.of("*"));
+        //  인증 정보(토큰 등) 포함 허용
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+
+        return source;
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http,
                                            AuthenticationManager authenticationManager, ObjectMapper objectMapper, LoginAttemptService loginAttemptService)
             throws Exception {
@@ -42,6 +66,7 @@ public class SecurityConfig {
         LoginFilter loginFilter = new LoginFilter(authenticationManager, jwtTokenProvider, loginAttemptService, objectMapper);
 
         http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
@@ -52,6 +77,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/signup", "/api/auth/login",
                                 "/api/auth/refresh", "/api/auth/password/reset",
                                 "/api/auth/oauth/login", "/api/auth/verify-email",
+                                "/api/auth/oauth/kakao", "/api/auth/oauth/google", "/api/auth/oauth/naver",
                                 "/h2-console/**").permitAll()
                         .anyRequest().authenticated()
                 )
@@ -60,4 +86,6 @@ public class SecurityConfig {
 
         return http.build();
     }
+
+
 }

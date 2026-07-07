@@ -4,15 +4,13 @@ import io.security.redall.dto.PasswordChangeRequest;
 import io.security.redall.dto.PasswordResetRequest;
 import io.security.redall.dto.SignupRequest;
 import io.security.redall.service.AuthService;
+import io.security.redall.service.EmailVerificationService;
 import io.security.redall.service.PasswordResetService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -22,6 +20,7 @@ import java.util.Map;
 public class AuthController {
     private final AuthService authService;
     private final PasswordResetService passwordResetService;
+    private final EmailVerificationService emailVerificationService;
 
     /**
      * 회원가입
@@ -62,4 +61,13 @@ public class AuthController {
                 "message", "비밀번호가 변경되었습니다."
         ));
     }
+
+    @GetMapping("/verify-email")
+    public ResponseEntity<?> vefiryEmail(@RequestParam("key") String securedKey){
+        emailVerificationService.verify(securedKey);
+        return ResponseEntity.ok(Map.of(
+                "message", "이메일 인증이 완료되었습니다. 이제 로그인할 수 있습니다."
+        ));
+    }
+
 }
