@@ -78,6 +78,9 @@ public class SecurityConfig {
                                 "/api/auth/refresh", "/api/auth/password/reset",
                                 "/api/auth/oauth/login", "/api/auth/verify-email",
                                 "/api/auth/oauth/kakao", "/api/auth/oauth/google", "/api/auth/oauth/naver",
+                                "/api/blood-centers",
+                                "/api/blood-centers/etl", "/api/blood-centers/nearby",
+                                "/api/blood-centers/nearest", "/api/blood-centers/search",
                                 "/h2-console/**").permitAll()
                         .anyRequest().authenticated()
                 )
