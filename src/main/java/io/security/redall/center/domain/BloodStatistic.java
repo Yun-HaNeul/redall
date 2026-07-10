@@ -17,7 +17,7 @@ public class BloodStatistic extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "stat_year", nullable = false)
     private Integer year;
 
     @Column(nullable = false, length = 50)
