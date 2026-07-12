@@ -81,6 +81,7 @@ public class SecurityConfig {
                                 "/api/blood-centers",
                                 "/api/blood-centers/etl", "/api/blood-centers/nearby",
                                 "/api/blood-centers/nearest", "/api/blood-centers/search",
+                                "/api/statistics/**",
                                 "/h2-console/**").permitAll()
                         .anyRequest().authenticated()
                 )
