@@ -1,12 +1,15 @@
 package io.security.redall.center.service;
 
 import io.security.redall.center.domain.BloodStatistic;
+import io.security.redall.center.dto.RegionStatisticResponse;
 import io.security.redall.center.dto.StatisticSummaryResponse;
+import io.security.redall.center.dto.YearlyStatisticResponse;
 import io.security.redall.center.repository.BloodStatisticRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -62,6 +65,45 @@ public class BloodStatisticService {
                 previousCount,
                 changePercent
         );
+    }
+
+    /**
+     * 연도별 추이 (전국 합계)
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public List<YearlyStatisticResponse> getYearlyTrend(){
+        return statisticRepository.findByRegionOrderByYearAsc(TOTAL_REGION).stream()
+                .map(YearlyStatisticResponse::from)
+                .toList();
+    }
+
+    /**
+     * 지역별 순위 (특정 연도, 헌혈률 높은 순)
+     * 합계 제외
+     * @param year
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public List<RegionStatisticResponse> getRegionRanking(int year){
+        return statisticRepository.findByYear(year).stream()
+                .filter(s -> !TOTAL_REGION.equals(s.getRegion()))   // 합계 제외
+                .map(RegionStatisticResponse::from)
+                .sorted(Comparator.comparingDouble(
+                        RegionStatisticResponse::donationRate).reversed()   //   높은 순 정렬
+                ).toList();
+    }
+
+    /**
+     * 지역 상세 (특정 지역의 전체 연도)
+     * @param region
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public List<RegionStatisticResponse> getRegionDetail(String region){
+        return statisticRepository.findByRegionOrderByYearAsc(region).stream()
+                .map(RegionStatisticResponse::from)
+                .toList();
     }
 
 }
