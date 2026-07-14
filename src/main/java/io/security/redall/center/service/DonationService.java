@@ -2,6 +2,7 @@ package io.security.redall.center.service;
 
 import io.security.redall.center.domain.BloodCenter;
 import io.security.redall.center.domain.Donation;
+import io.security.redall.center.domain.DonationType;
 import io.security.redall.center.dto.DonationRequest;
 import io.security.redall.center.dto.DonationResponse;
 import io.security.redall.center.repository.BloodCenterRepository;
@@ -12,10 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * 헌혈 기록 CRUD 서비스
@@ -44,17 +42,39 @@ public class DonationService {
                 .build();
 
         donationRepository.save(donation);
-        return DonationResponse.from(donation);
+
+        return DonationResponse.from(donation, 0, 0);
     }
 
-    /** 내 헌혈 기록 목록 (최신순) */
+    /** 내 헌혈 기록 목록 (최신순, 회차 자동 계산) */
     @Transactional(readOnly = true)
     public List<DonationResponse> getMyDonations(String username){
         User user = getUser(username);
-        return donationRepository
-                .findByUserIdOrderByDonationDateDesc(user.getId()).stream()
-                .map(DonationResponse::from)
-                .toList();
+
+        // 오래된 순으로 가져와서 회차 계산
+        List<Donation> donations = donationRepository
+                .findByUserIdOrderByDonationDateDesc(user.getId());
+
+        // 종류별 카운터
+        Map<DonationType, Integer> typeCounter = new HashMap<>();
+        List<DonationResponse> result = new ArrayList<>();
+
+        for (int i = 0; i < donations.size(); i++){
+            Donation d = donations.get(i);
+            DonationType type = d.getDonationType();
+
+            // 종류별 회차 증가
+            int typeSeq = typeCounter.merge(type, 1, Integer::sum);
+            // 전체 회차 (오래된 것부터)
+            int seq = i + 1;
+
+            result.add(DonationResponse.from(d, seq, typeSeq));
+        }
+
+        // 화면에는 최신순으로 정렬
+        Collections.reverse(result);
+
+        return result;
     }
 
      /** 수정 (본인 것만) */
@@ -73,7 +93,7 @@ public class DonationService {
                  request.getMemo()
          );
 
-         return DonationResponse.from(donation);
+         return DonationResponse.from(donation, 0, 0);
      }
 
      /** 삭제 (본인 것만) */

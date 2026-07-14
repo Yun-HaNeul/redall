@@ -26,4 +26,7 @@ public interface DonationRepository extends JpaRepository<Donation, Long> {
 
     /** 총 헌혈 횟수  */
     long countByUserId(Long userId);
+
+    /** 내 헌혈 기록 (오래된 순, 회차 계산용) */
+    List<Donation> findByUserIdOrderByDonationDateAsc(Long userId);
 }
