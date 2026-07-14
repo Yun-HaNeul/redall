@@ -53,7 +53,7 @@ public class DonationService {
 
         // 오래된 순으로 가져와서 회차 계산
         List<Donation> donations = donationRepository
-                .findByUserIdOrderByDonationDateDesc(user.getId());
+                .findByUserIdOrderByDonationDateAsc(user.getId());
 
         // 종류별 카운터
         Map<DonationType, Integer> typeCounter = new HashMap<>();
