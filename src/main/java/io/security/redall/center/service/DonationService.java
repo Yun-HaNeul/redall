@@ -17,7 +17,7 @@ import java.util.*;
 
 /**
  * 헌혈 기록 CRUD 서비스
- * 본인 기록만 접근 가능하도록  권한 체크
+ * 본인 기록만 접근 가능하도록  권한 체크필요
  */
 @Service
 @RequiredArgsConstructor
