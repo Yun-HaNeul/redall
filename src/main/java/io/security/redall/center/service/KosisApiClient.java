@@ -30,6 +30,9 @@ public class KosisApiClient {
     @Value("${kosis.api.tbl-id}")
     private String tblId;
 
+    @Value("${kosis.api.bloodtype-tbl-id}")
+    private String bloodTypeTblId;
+
     @SuppressWarnings("unchecked")
     public List<Map<String, Object>> fetch() {
         //  요청 URL 구성 (최근 3개 연도, 연간, 전체 지역, 3개 항목)
@@ -63,6 +66,36 @@ public class KosisApiClient {
             System.out.println("=== KOSIS 응답 (파싱 실패) ===");
             System.out.println(body);
             throw new IllegalStateException("KOSIS 응답 파싱 실패: " + e.getMessage(), e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Map<String, Object>> fetchBloodType(){
+        String uri = apiUrl
+                + "?method=getList"
+                + "&apiKey=" + apiKey
+                + "&itmId=T001+T002+"
+                + "&objL1=0"
+                + "&objL2=ALL&objL3=ALL"
+                + "&format=json&jsonVD=Y"
+                + "&prdSe=Y&newEstPrdCnt=3"
+                + "&orgId=" + orgId
+                + "&tblId=" + bloodTypeTblId;
+
+        String body = restClient.get()
+                .uri(uri)
+                .retrieve()
+                .body(String.class);
+
+        if (body == null || body.isEmpty()) {
+            throw new IllegalStateException("KOSIS 혈액형 통계 응답이 비어있습니다.");
+        }
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(body, new TypeReference<List<Map<String, Object>>>() {});
+        }catch (Exception e){
+            throw new IllegalStateException("KOSIS 혈액형 응답 파싱 실패: " + e.getMessage(), e);
         }
     }
 }

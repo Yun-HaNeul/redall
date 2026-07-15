@@ -33,7 +33,7 @@ public class BloodCenterDataInitializer implements CommandLineRunner {
 
         log.info("=== ETL start ===");
         BloodCenterEtlService.EtlResult result = etlService.runEtl();
-        log.info("=== ETL 완료: 추출 {}건, 저장 {}건, 좌표실패 {}건, 중복 {}건",
+        log.info("=== ETL 완료: 추출 {}건, 저장 {}건, 좌표실패 {}건, 중복 {}건 ===",
                 result.extracted(), result.loaded(),
                 result.geocodeFail(), result.duplicate());
     }

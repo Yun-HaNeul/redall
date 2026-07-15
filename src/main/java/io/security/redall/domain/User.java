@@ -40,6 +40,14 @@ public class User extends BaseTimeEntity{
     @Column(nullable = false, length = 20)
     private String name;
 
+    /** 혈액형 (A, B, O, AB) - 등록 안 하면 null */
+    @Column(length = 10)
+    private String bloodType;
+
+    /** RH 타입 (POSITIVE, NEGATIVE) */
+    @Column(length = 10)
+    private String rhType;
+
     /**
      *  계정 상태 (Security UserDetails 대응)
      *  이메일 인증 완료 여부 (가입 직후 false, 인증 링크 클릭 시 true)
@@ -184,5 +192,15 @@ public class User extends BaseTimeEntity{
         this.withdrawnAt = LocalDateTime.now();
         this.enabled = false;
     }
+
+    /**
+     * 혈액형 등록/수정
+     * @param bloodType
+     * @param rhType
+     */
+    public void updateBloodType(String bloodType, String rhType) {
+    this.bloodType = bloodType;
+    this.rhType = rhType;
+}
 
 }
