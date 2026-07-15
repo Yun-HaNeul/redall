@@ -4,6 +4,7 @@ import io.security.redall.center.dto.DonationAvailabilityResponse;
 import io.security.redall.center.dto.DonationRequest;
 import io.security.redall.center.dto.DonationResponse;
 import io.security.redall.center.service.DonationAvailabilityService;
+import io.security.redall.center.service.DonationInsightService;
 import io.security.redall.center.service.DonationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,14 @@ public class DonationController {
 
     private final DonationService donationService;
     private final DonationAvailabilityService availabilityService;
+    private final DonationInsightService insightService;
 
+    @GetMapping("/insight")
+    public ResponseEntity<Map<String, String>> getInsight(
+            Authentication authentication) {
+        String insight = insightService.generateInsight(authentication.getName());
+        return ResponseEntity.ok(Map.of("insight", insight));
+    }
 
     /**
      * 헌혈 등록
