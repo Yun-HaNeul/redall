@@ -1,9 +1,11 @@
 package io.security.redall.center.controller;
 
+import io.security.redall.center.dto.BloodTypeStatResponse;
 import io.security.redall.center.dto.RegionStatisticResponse;
 import io.security.redall.center.dto.StatisticSummaryResponse;
 import io.security.redall.center.dto.YearlyStatisticResponse;
 import io.security.redall.center.service.BloodStatisticService;
+import io.security.redall.center.service.BloodTypeInsightService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BloodStatisticController {
     private final BloodStatisticService bloodStatisticService;
+    private final BloodTypeInsightService insightService;
 
     @GetMapping("/summary")
     public ResponseEntity<StatisticSummaryResponse> getSummary(){
@@ -54,6 +57,16 @@ public class BloodStatisticController {
     @GetMapping("/region/{region}")
     public ResponseEntity<List<RegionStatisticResponse>> getRegionDetail(@PathVariable String region){
         return ResponseEntity.ok(bloodStatisticService.getRegionDetail(region));
+    }
+
+    /**
+     * 혈액형별 분포
+     * GET /api/statistics/blood-types
+     * @return
+     */
+    @GetMapping("/blood-types")
+    public ResponseEntity<List<BloodTypeStatResponse>> getBloodTypeDistribution(){
+        return ResponseEntity.ok(insightService.getDistribution());
     }
 
 
